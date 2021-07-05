@@ -94,11 +94,11 @@ func (executor *Executor) Execute(program *program.Program) error {
 }
 
 func ExecutorFactory(hosts []string, user string, auth *ssh.AuthMethod, printChan chan<- printer.Printer) Executor {
-	workers := make([]*machine, 0, len(hosts))
+	machines := make([]*machine, 0, len(hosts))
 
 	for _, host := range hosts {
-		workers = append(workers, &machine{connection: nil, host: host, terminal: printChan})
+		machines = append(machines, &machine{connection: nil, host: host, terminal: printChan})
 	}
 
-	return Executor{machines: workers, user: user, auth: auth, terminal: printChan}
+	return Executor{machines: machines, user: user, auth: auth, terminal: printChan}
 }
