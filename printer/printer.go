@@ -3,49 +3,56 @@ package printer
 import "fmt"
 
 const (
-	Reset  = "\033[0m"
-	Red    = "\033[31m"
-	Green  = "\033[32m"
-	Yellow = "\033[33m"
+	reset  = "\033[0m"
+	red    = "\033[31m"
+	green  = "\033[32m"
+	yellow = "\033[33m"
 )
+
+func structuredPrint(host string, msg string, color string) {
+	if host != "" {
+		fmt.Println(color + "HOST: [" + host + "]" + reset)
+	}
+	fmt.Println(color + msg + reset)
+}
 
 type Printer interface {
 	Print()
 }
 
-type SuccessPrinter struct {
-	Msg string
+type ColorPrinter struct {
+	Host  string
+	Msg   string
+	Color string
 }
 
-func (printer SuccessPrinter) Print() {
-	fmt.Println(Green + printer.Msg + Reset)
+func (printer ColorPrinter) Print() {
+	structuredPrint(printer.Host, printer.Msg, printer.Color)
 }
 
-type ClassicPrinter struct {
-	Msg string
+func Red(host, msg string) ColorPrinter {
+	return ColorPrinter{Host: host, Msg: msg, Color: red}
 }
 
-func (printer ClassicPrinter) Print() {
-	fmt.Println(printer.Msg)
+func Green(host, msg string) ColorPrinter {
+	return ColorPrinter{Host: host, Msg: msg, Color: green}
 }
 
-type WarningPrinter struct {
-	Msg string
-}
-
-func (printer WarningPrinter) Print() {
-	fmt.Println(Yellow + printer.Msg + Reset)
+func Yellow(host, msg string) ColorPrinter {
+	return ColorPrinter{Host: host, Msg: msg, Color: yellow}
 }
 
 type ErrorPrinter struct {
-	Err error
+	Host string
+	Msg  string
 }
 
 func (printer ErrorPrinter) Print() {
-	fmt.Println(Red + printer.Err.Error() + Reset)
+	structuredPrint(printer.Host, printer.Msg, red)
+	fmt.Println("")
 }
 
-func PrintOnTerminal(printChan <-chan Printer) {
+func RegisterPrinter(printChan <-chan Printer) {
 	for printer := range printChan {
 		printer.Print()
 	}

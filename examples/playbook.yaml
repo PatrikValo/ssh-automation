@@ -1,0 +1,14 @@
+hosts:
+  - "172.26.2.109:22"
+  - "172.26.2.110:22"
+  - "172.26.2.111:22"
+  - "172.26.2.112:22"
+tasks:
+  - name: "Show all"
+    cmd: "ls -a"
+    out: true
+  - name: "Install python3"
+    cmd: "yum install -y python3"
+  - name: "Check python3"
+    cmd: "which python3"
+    out: true
