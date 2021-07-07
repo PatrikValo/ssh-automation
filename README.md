@@ -1,4 +1,5 @@
 # ssh-automation
+![example workflow](https://github.com/PatrikValo/ssh-automation/actions/workflows/testing.yaml/badge.svg)
 
 Simple, fast and lightweight automation tool for execution bash commands on multiple remote machines. It is inspired
 by [ansible](https://github.com/ansible/ansible) and written in Go. For communication with remote machines it uses SSH.
