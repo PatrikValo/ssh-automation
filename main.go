@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	userInput, err := cli.GetUserInput()
+	commandLine := cli.CreateCli()
+	userInput, err := commandLine.GetUserInput()
 
 	if err != nil {
 		panic(err)

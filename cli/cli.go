@@ -27,7 +27,7 @@ type Auth struct {
 	PrivateKeyFilename string
 }
 
-func (auth Auth) GetAuthMethod() (ssh.AuthMethod, error) {
+func (auth *Auth) GetAuthMethod() (ssh.AuthMethod, error) {
 	if auth.PrivateKeyFilename == "" {
 		return ssh.Password(auth.Password), nil
 	}
@@ -52,29 +52,50 @@ func getPassword() (string, error) {
 	return string(password), err
 }
 
-func GetUserInput() (UserFlags, error) {
-	filename := flag.String("f", Filename, "source file of the tasks")
-	pkf := flag.String("k", SSHKey, "ssh private key for machines")
+func fileExist(filename string) bool {
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func getFlags() (*string, *string, *string, *bool) {
+	playbookFilename := flag.String("f", Filename, "source file of the tasks")
+	keyFilename := flag.String("k", SSHKey, "ssh private key for machines")
 	user := flag.String("u", User, "user login")
 	usePassword := flag.Bool("p", false, "usage of password")
 	flag.Parse()
+	return playbookFilename, keyFilename, user, usePassword
+}
 
-	if _, err := os.Stat(*filename); os.IsNotExist(err) {
-		return UserFlags{}, err
+type Cli struct {
+	getPassword func() (string, error)
+	fileExist   func(string) bool
+	getFlags    func() (*string, *string, *string, *bool)
+}
+
+func (cli *Cli) GetUserInput() (UserFlags, error) {
+	pf, kf, user, usePwd := cli.getFlags()
+
+	if !cli.fileExist(*pf) {
+		return UserFlags{}, errors.New(*pf + " file doesn't exist")
 	}
 
-	if !*usePassword {
-		if _, err := os.Stat(*pkf); os.IsNotExist(err) {
-			return UserFlags{}, err
+	if !*usePwd {
+		if !cli.fileExist(*kf) {
+			return UserFlags{}, errors.New(*kf + " file doesn't exist")
 		}
-
-		return UserFlags{Filename: *filename, Auth: Auth{User: *user, Password: "", PrivateKeyFilename: *pkf}}, nil
+		return UserFlags{Filename: *pf, Auth: Auth{User: *user, Password: "", PrivateKeyFilename: *kf}}, nil
 	}
 
-	password, err := getPassword()
+	pwd, err := cli.getPassword()
 	if err != nil {
 		return UserFlags{}, err
 	}
 
-	return UserFlags{Filename: *filename, Auth: Auth{User: *user, Password: password, PrivateKeyFilename: ""}}, nil
+	return UserFlags{Filename: *pf, Auth: Auth{User: *user, Password: pwd, PrivateKeyFilename: ""}}, nil
+}
+
+func CreateCli() Cli {
+	return Cli{getPassword: getPassword, fileExist: fileExist, getFlags: getFlags}
 }
