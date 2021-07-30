@@ -11,10 +11,10 @@ This project was created for purpose of learning the Go language.
 
 ```yaml
 hosts:
-  - "172.26.2.109:22"
-  - "172.26.2.110:22"
-  - "172.26.2.111:22"
-  - "172.26.2.112:22"
+  - "172.26.2.109"
+  - "172.26.2.110"
+  - "172.26.2.111"
+  - "172.26.2.112:8080"
 tasks:
   - name: "Show all"
     cmd: "ls -a"
@@ -28,7 +28,7 @@ tasks:
 
 Each file must contain `hosts` and `tasks` attributes.
 
-- `hosts` - contains array of addresses with **ssh port** of the machines.
+- `hosts` - contains array of addresses of the machines. Port is optional and default port is **22**.
 
 - `tasks` - contains array of the tasks, which will be executed on the machines from the `hosts` array. Each task
   contains:
