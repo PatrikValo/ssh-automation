@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"strconv"
 	"strings"
 )
 
@@ -20,7 +21,15 @@ func (parser *Parser) addDefaultPort(program *Program) error {
 		}
 
 		if len(split) == 2 && split[1] == "" {
-			program.Hosts[i] = host + "22"
+			return errors.New("bad format of host ip address or domain")
+		}
+
+
+		if len(split) == 2 {
+			_, err := strconv.Atoi(split[1])	// try if port is number
+			if err != nil {
+				return errors.New("bad format of host ip address or domain")
+			}
 		}
 
 		if len(split) == 1 {
@@ -37,12 +46,12 @@ func (parser *Parser) Parse() (*Program, error) {
 		return nil, err
 	}
 
-	var program Program
-	err = yaml.Unmarshal(yamlFile, &program)
+	program := new(Program)
+	err = yaml.Unmarshal(yamlFile, program)
 
 	if err == nil {
-		err = parser.addDefaultPort(&program)
+		err = parser.addDefaultPort(program)
 	}
 
-	return &program, err
+	return program, err
 }
