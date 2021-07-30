@@ -2,14 +2,46 @@ package core
 
 import (
 	"github.com/PatrikValo/ssh-automation/printer"
+	"github.com/PatrikValo/ssh-automation/program"
 	"golang.org/x/crypto/ssh"
 	"net"
+	"time"
 )
 
 type machine struct {
+	config     *program.Config
 	connection *ssh.Client
 	host       string
 	terminal   chan<- printer.Printer
+}
+
+func (machine *machine) selectTimeout(connChan <-chan *ssh.Client, errorChan <-chan error) bool {
+	if machine.config.ConnectionTimeout <= 0 {
+		select {
+		case conn := <-connChan:
+			machine.connection = conn
+			return true
+		case err := <-errorChan:
+			machine.terminal <- printer.ErrorPrinter{Host: machine.host, Msg: err.Error()}
+			return false
+		}
+	} else {
+		select {
+		case conn := <-connChan:
+			machine.connection = conn
+			machine.terminal <- printer.Green(machine.host, "Connection is established.\n")
+			return true
+		case err := <-errorChan:
+			machine.terminal <- printer.ErrorPrinter{Host: machine.host, Msg: err.Error()}
+			return false
+		case <-time.After(time.Duration(machine.config.ConnectionTimeout) * time.Millisecond):
+			machine.terminal <- printer.ErrorPrinter{
+				Host: machine.host,
+				Msg:  "TIMEOUT: Connection to machine takes too long.",
+			}
+			return false
+		}
+	}
 }
 
 func (machine *machine) connect(user string, authMethod *ssh.AuthMethod, connected chan<- bool) {
@@ -21,16 +53,19 @@ func (machine *machine) connect(user string, authMethod *ssh.AuthMethod, connect
 		HostKeyCallback: ssh.HostKeyCallback(func(hostname string, remote net.Addr, key ssh.PublicKey) error { return nil }),
 	}
 
-	conn, err := ssh.Dial("tcp", machine.host, sshConfig)
+	connChan := make(chan *ssh.Client)
+	errorChan := make(chan error)
 
-	if err != nil {
-		machine.terminal <- printer.ErrorPrinter{Host: machine.host, Msg: err.Error()}
-		connected <- false
-		return
-	}
+	go func() {
+		conn, err := ssh.Dial("tcp", machine.host, sshConfig)
+		if err != nil {
+			errorChan <- err
+		} else {
+			connChan <- conn
+		}
+	}()
 
-	machine.connection = conn
-	connected <- true
+	connected <- machine.selectTimeout(connChan, errorChan)
 }
 
 func (machine *machine) execCmd(cmd string, out bool, executed chan<- bool) {
