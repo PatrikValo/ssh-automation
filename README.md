@@ -24,6 +24,8 @@ tasks:
   - name: "Check python3"
     cmd: "which python3"
     out: true
+config:
+  connection_timeout: 5000  # init connection timeout in ms
 ```
 
 Each file must contain `hosts` and `tasks` attributes.
@@ -36,6 +38,11 @@ Each file must contain `hosts` and `tasks` attributes.
     - `cmd` - correct bash command
     - `out` - bool if you want to see the output of the command on the terminal
 
+There is also optional attribute `config`.
+- `config` - contain different kind of additional settings for app
+  - `connection_timeout` - disable infinite waiting for connection. It is
+  integer value, which represent number of milliseconds. If value is not defined 
+  or is `<= 0`, timeout is not used.
 ## Running app
 
 ```shell
@@ -114,6 +121,18 @@ HOST: [172.26.2.113:22]
 dial tcp 172.26.2.113:22: connect: no route to host
 
 |-+ SUCCESS: 3
+|-+ FAIL: 1
+```
+
+Example of timeout exceeded output
+
+```shell
+TASK [Try to connect machines]
+*******************************************
+HOST: [172.26.2.112:22]
+TIMEOUT: Connection to machine takes too long.
+
+|-+ SUCCESS: 0
 |-+ FAIL: 1
 ```
 

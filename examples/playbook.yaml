@@ -12,3 +12,5 @@ tasks:
   - name: "Check python3"
     cmd: "which python3"
     out: true
+config:
+  connection_timeout: 5000  # init connection timeout in ms
