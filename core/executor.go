@@ -93,11 +93,17 @@ func (executor *Executor) Execute(program *program.Program) error {
 	return nil
 }
 
-func ExecutorFactory(hosts []string, user string, auth *ssh.AuthMethod, terminal chan<- printer.Printer) Executor {
+func ExecutorFactory(
+	config *program.Config,
+	hosts []string,
+	user string,
+	auth *ssh.AuthMethod,
+	terminal chan<- printer.Printer,
+) Executor {
 	machines := make([]*machine, 0, len(hosts))
 
 	for _, host := range hosts {
-		machines = append(machines, &machine{connection: nil, host: host, terminal: terminal})
+		machines = append(machines, &machine{config: config, host: host, terminal: terminal})
 	}
 
 	return Executor{machines: machines, user: user, auth: auth, terminal: terminal}

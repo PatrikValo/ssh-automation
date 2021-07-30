@@ -30,7 +30,7 @@ func main() {
 	}
 
 	terminal := make(chan printer.Printer)
-	executor := core.ExecutorFactory(parsedProgram.Hosts, user, &auth, terminal)
+	executor := core.ExecutorFactory(&parsedProgram.Config, parsedProgram.Hosts, user, &auth, terminal)
 
 	go func() {
 		defer close(terminal)
