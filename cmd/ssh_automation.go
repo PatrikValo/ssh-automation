@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/PatrikValo/ssh-automation/cli"
-	"github.com/PatrikValo/ssh-automation/core"
-	"github.com/PatrikValo/ssh-automation/printer"
-	"github.com/PatrikValo/ssh-automation/program"
 	"os"
+
+	"github.com/PatrikValo/ssh-automation/pkg/cli"
+	"github.com/PatrikValo/ssh-automation/pkg/core"
+	"github.com/PatrikValo/ssh-automation/pkg/printer"
+	"github.com/PatrikValo/ssh-automation/pkg/program"
 )
 
 func main() {
