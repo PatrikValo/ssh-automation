@@ -1,4 +1,5 @@
 # ssh-automation
+
 ![example workflow](https://github.com/PatrikValo/ssh-automation/actions/workflows/testing.yaml/badge.svg)
 
 Simple, fast and lightweight automation tool for execution bash commands on multiple remote machines. It is inspired
@@ -25,7 +26,7 @@ tasks:
     cmd: "which python3"
     out: true
 config:
-  connection_timeout: 5000  # init connection timeout in ms
+  connection_timeout: 5000 # init connection timeout in ms
 ```
 
 Each file must contain `hosts` and `tasks` attributes.
@@ -34,20 +35,22 @@ Each file must contain `hosts` and `tasks` attributes.
 
 - `tasks` - contains array of the tasks, which will be executed on the machines from the `hosts` array. Each task
   contains:
-    - `name` - name of the task, which is printed during execution on terminal
-    - `cmd` - correct bash command
-    - `out` - bool if you want to see the output of the command on the terminal
+  - `name` - name of the task, which is printed during execution on terminal
+  - `cmd` - correct bash command
+  - `out` - bool if you want to see the output of the command on the terminal
 
 There is also optional attribute `config`.
+
 - `config` - contain different kind of additional settings for app
   - `connection_timeout` - disable infinite waiting for connection. It is
-  integer value, which represent number of milliseconds. If value is not defined 
-  or is `<= 0`, timeout is not used.
+    integer value, which represent number of milliseconds. If value is not defined
+    or is `<= 0`, timeout is not used.
+
 ## Running app
 
 ```shell
 go mod download
-go run main.go [-flags]
+go run cmd/ssh_automation.go [-flags]
 ```
 
 ### flags

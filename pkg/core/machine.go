@@ -1,11 +1,13 @@
 package core
 
 import (
-	"github.com/PatrikValo/ssh-automation/printer"
-	"github.com/PatrikValo/ssh-automation/program"
-	"golang.org/x/crypto/ssh"
 	"net"
 	"time"
+
+	"golang.org/x/crypto/ssh"
+
+	"github.com/PatrikValo/ssh-automation/pkg/printer"
+	"github.com/PatrikValo/ssh-automation/pkg/program"
 )
 
 type machine struct {
